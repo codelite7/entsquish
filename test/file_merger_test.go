@@ -240,6 +240,51 @@ func test() {
 				`"errors"`:                      "errorspkg", // should be errorspkg, not errorspkg2
 			},
 		},
+		{
+			name: "root package with multiple files should not create numbered aliases",
+			sourceFiles: []string{
+				// File 1: Has conflicts with errors and driver
+				`package gen
+
+import (
+	"errors"
+	"database/sql/driver"
+)
+
+var (
+	errors []string
+	driver string
+)
+
+func foo() {
+	err := errors.New("test")
+	var d driver.Driver
+}`,
+				// File 2: Has the same imports but different conflicts
+				`package gen
+
+import (
+	"errors"
+	"database/sql/driver"
+	"entgo.io/ent/schema/field"
+)
+
+var (
+	field int
+)
+
+func bar() {
+	err := errors.New("test2")
+	var d driver.Driver
+	var f field.Type
+}`,
+			},
+			expectedImports: map[string]string{
+				`"errors"`:                    "errorspkg", // should be errorspkg, not errorspkg2
+				`"database/sql/driver"`:       "driverpkg", // should be driverpkg, not driverpkg2
+				`"entgo.io/ent/schema/field"`: "fieldpkg",  // should be fieldpkg, not fieldpkg2
+			},
+		},
 	}
 
 	for _, tt := range tests {

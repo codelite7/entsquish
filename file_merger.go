@@ -315,7 +315,7 @@ func (fm *FileMerger) ResolveImportConflicts(fileInfos []FileInfo) ImportAliasMa
 
 			// Check for conflicts with any identifier and generate unique alias if needed
 			// Only generate new alias if there's actually a conflict and it's not an explicit alias
-			if !hasExplicitAlias && (usedIdentifiers[preferredAlias] || aliasToPath[preferredAlias] != "") {
+			if !hasExplicitAlias && (usedIdentifiers[preferredAlias] || (aliasToPath[preferredAlias] != "" && aliasToPath[preferredAlias] != path)) {
 				preferredAlias = fm.GenerateUniqueAlias(packageName, usedIdentifiers, aliasToPath)
 			} else if hasExplicitAlias && (aliasToPath[preferredAlias] != "" && aliasToPath[preferredAlias] != path) {
 				// Explicit alias conflicts with another import's alias
