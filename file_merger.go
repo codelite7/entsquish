@@ -274,7 +274,7 @@ func (fm *FileMerger) ResolveImportConflicts(fileInfos []FileInfo) ImportAliasMa
 		`"database/sql"`:             "stdsql",
 		`"entgo.io/ent/dialect/sql"`: "entsql",
 		`"log"`:                      "stdlog",
-		`"entgo.io/ent"`:             "ent2",
+		`"entgo.io/ent"`:             "entpkg",
 	}
 
 	// Collect ALL identifiers across all files to detect conflicts
@@ -509,7 +509,7 @@ func (fm *FileMerger) GenerateUniqueAlias(baseName string, usedIdentifiers map[s
 		return candidate
 	}
 
-	// Strategy 2: Try baseName + "pkg" + number
+	// Strategy 2: Try baseName + "pkg" + number, starting from 2
 	counter := 2
 	for {
 		candidate = fmt.Sprintf("%spkg%d", baseName, counter)

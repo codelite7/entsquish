@@ -190,6 +190,56 @@ func test() {
 				`"errors"`: "myalias",
 			},
 		},
+		{
+			name: "ent generated imports should not get unnecessary numbers",
+			sourceFiles: []string{
+				`package gen
+
+import (
+	"context"
+	"database/sql"
+	"database/sql/driver"
+	"encoding/json"
+	"entgo.io/contrib/entgql"
+	"entgo.io/ent"
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/entql"
+	"entgo.io/ent/schema/field"
+	"errors"
+)
+
+// Variables that conflict with package names
+var (
+	driver string
+	ent string  
+	field int
+	errors []string
+)
+
+func test() {
+	var ctx context.Context
+	var db *sql.DB
+	var d driver.Driver
+	return errors.New("test")
+}`,
+			},
+			expectedImports: map[string]string{
+				`"context"`:                     "",         // no alias
+				`"database/sql"`:                "stdsql",    // standard alias
+				`"database/sql/driver"`:         "driverpkg", // should be driverpkg, not driverpkg2
+				`"encoding/json"`:               "",         // no alias
+				`"entgo.io/contrib/entgql"`:     "",         // no alias
+				`"entgo.io/ent"`:                "entpkg",    // should be entpkg, not entpkg2
+				`"entgo.io/ent/dialect"`:        "",         // no alias
+				`"entgo.io/ent/dialect/sql"`:    "entsql",   // standard alias
+				`"entgo.io/ent/dialect/sql/sqlgraph"`: "",   // no alias
+				`"entgo.io/ent/entql"`:          "",         // no alias
+				`"entgo.io/ent/schema/field"`:   "fieldpkg", // should be fieldpkg, not fieldpkg2
+				`"errors"`:                      "errorspkg", // should be errorspkg, not errorspkg2
+			},
+		},
 	}
 
 	for _, tt := range tests {
