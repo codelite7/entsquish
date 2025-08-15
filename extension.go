@@ -1,4 +1,4 @@
-package entsquash
+package entsquish
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 )
 
 type (
-	// Extension implements the entc.Extension for file squashing optimization.
+	// Extension implements the entc.Extension for file squishing optimization.
 	Extension struct {
 		entc.DefaultExtension
 		verboseLogging bool
@@ -23,7 +23,7 @@ type (
 	ExtensionOption func(*Extension) error
 )
 
-// NewExtension creates a new squashing extension with the given options.
+// NewExtension creates a new squishing extension with the given options.
 func NewExtension(opts ...ExtensionOption) (*Extension, error) {
 	ex := &Extension{
 		verboseLogging: false,             // Default to quiet operation
@@ -38,23 +38,23 @@ func NewExtension(opts ...ExtensionOption) (*Extension, error) {
 	}
 
 	// Check environment variables for overrides
-	if os.Getenv("DISABLE_ENT_SQUASHING") == "true" {
-		log.Printf("entsquash: disabled via DISABLE_ENT_SQUASHING environment variable")
+	if os.Getenv("DISABLE_ENT_SQUISHING") == "true" {
+		log.Printf("entsquish: disabled via DISABLE_ENT_SQUISHING environment variable")
 		return &Extension{}, nil // Return no-op extension
 	}
 
-	if os.Getenv("ENT_SQUASHING_VERBOSE") == "true" {
+	if os.Getenv("ENT_SQUISHING_VERBOSE") == "true" {
 		ex.verboseLogging = true
 	}
 
-	if os.Getenv("ENT_SQUASHING_DRY_RUN") == "true" {
+	if os.Getenv("ENT_SQUISHING_DRY_RUN") == "true" {
 		ex.dryRun = true
 	}
 
 	return ex, nil
 }
 
-// Hooks returns the list of hooks for file squashing.
+// Hooks returns the list of hooks for file squishing.
 // This hook runs AFTER normal generation to merge files.
 func (e *Extension) Hooks() []gen.Hook {
 	// If extension is disabled, return no hooks
@@ -66,65 +66,65 @@ func (e *Extension) Hooks() []gen.Hook {
 		func(next gen.Generator) gen.Generator {
 			return gen.GenerateFunc(func(g *gen.Graph) error {
 				if e.verboseLogging {
-					log.Printf("entsquash: starting file squashing process")
+					log.Printf("entsquish: starting file squishing process")
 				}
 
 				// Let normal generation complete first
 				err := next.Generate(g)
 				if err != nil {
-					return fmt.Errorf("entsquash: normal generation failed: %w", err)
+					return fmt.Errorf("entsquish: normal generation failed: %w", err)
 				}
 
-				// Then squash the files
-				return e.squashFiles(g)
+				// Then squish the files
+				return e.squishFiles(g)
 			})
 		},
 	}
 }
 
-// squashFiles performs the actual file squashing operation.
-func (e *Extension) squashFiles(g *gen.Graph) error {
+// squishFiles performs the actual file squishing operation.
+func (e *Extension) squishFiles(g *gen.Graph) error {
 	if e.verboseLogging {
-		log.Printf("entsquash: analyzing %d nodes for squashing opportunities", len(g.Nodes))
+		log.Printf("entsquish: analyzing %d nodes for squishing opportunities", len(g.Nodes))
 	}
 
 	detector := NewPackageDetector(e.verboseLogging, e.maxFileSize)
 	merger := NewFileMerger(e.verboseLogging, e.dryRun, e.maxFileSize)
 
-	// Detect packages that can be safely squashed
-	squashablePackages, err := detector.FindSquashablePackages()
+	// Detect packages that can be safely squished
+	squishablePackages, err := detector.FindSquishablePackages()
 	if err != nil {
-		return fmt.Errorf("entsquash: failed to detect squashable packages: %w", err)
+		return fmt.Errorf("entsquish: failed to detect squishable packages: %w", err)
 	}
 
 	if e.verboseLogging {
-		log.Printf("entsquash: found %d squashable packages", len(squashablePackages))
+		log.Printf("entsquish: found %d squishable packages", len(squishablePackages))
 	}
 
-	if len(squashablePackages) == 0 {
+	if len(squishablePackages) == 0 {
 		if e.verboseLogging {
-			log.Printf("entsquash: no packages found for squashing")
+			log.Printf("entsquish: no packages found for squishing")
 		}
 		return nil
 	}
 
-	// Merge files in each squashable package
+	// Merge files in each squishable package
 	successCount := 0
-	for _, pkg := range squashablePackages {
+	for _, pkg := range squishablePackages {
 		err := merger.MergePackage(pkg)
 		if err != nil {
-			log.Printf("entsquash: warning: failed to merge package %s: %v", pkg.Path, err)
+			log.Printf("entsquish: warning: failed to merge package %s: %v", pkg.Path, err)
 			continue // Continue with other packages on error
 		}
 		successCount++
 	}
 
 	if e.verboseLogging {
-		log.Printf("entsquash: successfully squashed %d/%d packages", successCount, len(squashablePackages))
+		log.Printf("entsquish: successfully squished %d/%d packages", successCount, len(squishablePackages))
 	}
 
 	if e.dryRun {
-		log.Printf("entsquash: DRY RUN completed - no files were actually modified")
+		log.Printf("entsquish: DRY RUN completed - no files were actually modified")
 	}
 
 	return nil

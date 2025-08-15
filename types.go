@@ -1,12 +1,12 @@
-package entsquash
+package entsquish
 
 import (
 	"go/ast"
 	"go/token"
 )
 
-// SquashablePackage represents a package that can be safely squashed.
-type SquashablePackage struct {
+// SquishablePackage represents a package that can be safely squished.
+type SquishablePackage struct {
 	// Path is the relative path to the package directory
 	Path string
 
@@ -77,14 +77,14 @@ type MergeStats struct {
 	SizeReduction int64
 }
 
-// PackageType represents the type of package for squashing decisions.
+// PackageType represents the type of package for squishing decisions.
 type PackageType int
 
 const (
 	// PackageTypeEntity represents a regular entity package (contact/, property/, etc.)
 	PackageTypeEntity PackageType = iota
 
-	// PackageTypeSpecial represents special packages that should not be squashed
+	// PackageTypeSpecial represents special packages that should not be squished
 	PackageTypeSpecial
 
 	// PackageTypeRoot represents files in the root gen directory
@@ -108,8 +108,8 @@ func (pt PackageType) String() string {
 	}
 }
 
-// SquashingConfig represents configuration for the squashing process.
-type SquashingConfig struct {
+// SquishingConfig represents configuration for the squishing process.
+type SquishingConfig struct {
 	// BaseDir is the base directory for Ent generated files
 	BaseDir string
 
@@ -123,9 +123,9 @@ type SquashingConfig struct {
 	MaxFileSize int64
 }
 
-// DefaultSquashingConfig returns a default configuration.
-func DefaultSquashingConfig() SquashingConfig {
-	return SquashingConfig{
+// DefaultSquishingConfig returns a default configuration.
+func DefaultSquishingConfig() SquishingConfig {
+	return SquishingConfig{
 		BaseDir:        "src/ent/gen",
 		DryRun:         false,
 		VerboseLogging: false,

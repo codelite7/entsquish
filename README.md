@@ -6,7 +6,7 @@ A Go library that optimizes [Ent](https://entgo.io/) generated code by merging m
 
 - **Automatic file merging**: Combines entity.go and where.go files into a single file per entity
 - **Import conflict resolution**: Intelligently handles naming conflicts between imports and local identifiers
-- **Configurable**: Multiple options for controlling the squashing behavior
+- **Configurable**: Multiple options for controlling the squishing behavior
 - **Ent integration**: Works seamlessly as an Ent extension
 
 ## Installation
@@ -32,13 +32,13 @@ import (
 
 func main() {
     // Create the entsquish extension
-    squashExt, err := entsquish.NewExtension()
+    squishExt, err := entsquish.NewExtension()
     if err != nil {
         log.Fatalf("creating entsquish extension: %v", err)
     }
 
-    // Generate code with squashing
-    err = entc.Generate("./schema", &gen.Config{}, entc.Extensions(squashExt))
+    // Generate code with squishing
+    err = entc.Generate("./schema", &gen.Config{}, entc.Extensions(squishExt))
     if err != nil {
         log.Fatalf("running ent codegen: %v", err)
     }
@@ -98,13 +98,13 @@ You can control entsquish behavior using environment variables:
 
 ```bash
 # Completely disable entsquish
-export DISABLE_ENT_SQUASHING=true
+export DISABLE_ENT_SQUISHING=true
 
 # Enable verbose logging
-export ENT_SQUASHING_VERBOSE=true
+export ENT_SQUISHING_VERBOSE=true
 
 # Enable dry run mode
-export ENT_SQUASHING_DRY_RUN=true
+export ENT_SQUISHING_DRY_RUN=true
 ```
 
 ## Integration with Existing Ent Setup
@@ -117,14 +117,14 @@ func main() {
     existingExt := &MyCustomExtension{}
     
     // Add entsquish
-    squashExt, err := entsquish.NewExtension()
+    squishExt, err := entsquish.NewExtension()
     if err != nil {
         log.Fatalf("creating entsquish extension: %v", err)
     }
 
     // Generate with multiple extensions
     err = entc.Generate("./schema", &gen.Config{}, 
-        entc.Extensions(existingExt, squashExt))
+        entc.Extensions(existingExt, squishExt))
     if err != nil {
         log.Fatalf("running ent codegen: %v", err)
     }
@@ -135,7 +135,7 @@ func main() {
 
 ```go
 func main() {
-    squashExt, err := entsquish.NewExtension()
+    squishExt, err := entsquish.NewExtension()
     if err != nil {
         log.Fatalf("creating entsquish extension: %v", err)
     }
@@ -144,14 +144,14 @@ func main() {
         Target: "./custom/ent/gen", // Custom generation directory
     }
 
-    err = entc.Generate("./schema", config, entc.Extensions(squashExt))
+    err = entc.Generate("./schema", config, entc.Extensions(squishExt))
     if err != nil {
         log.Fatalf("running ent codegen: %v", err)
     }
 }
 ```
 
-## What Gets Squashed
+## What Gets Squished
 
 ### Entity Packages
 For each entity (e.g., `User`), entsquish merges:
@@ -163,7 +163,7 @@ Into a single `user.go` file.
 ### Root Package Files
 Files in the root generation directory are also consolidated when possible.
 
-### What's NOT Squashed
+### What's NOT Squished
 - Special packages: `migrate`, `runtime`, `hook`, `intercept`, etc.
 - Packages with non-standard file structures
 - Files exceeding the size limit
@@ -212,6 +212,6 @@ ext, err := entsquish.NewExtension(
 ### Disable Temporarily
 Set environment variable:
 ```bash
-export DISABLE_ENT_SQUASHING=true
+export DISABLE_ENT_SQUISHING=true
 ```
 

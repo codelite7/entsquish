@@ -198,7 +198,7 @@ func test() {
 			fileInfos := parseTestFiles(t, tt.sourceFiles)
 
 			// Create file merger and resolve conflicts
-			fm := entsquash.NewFileMerger(false, false, 1000000)
+			fm := entsquish.NewFileMerger(false, false, 1000000)
 			mapping := fm.ResolveImportConflicts(fileInfos)
 
 			// Verify expected imports
@@ -277,7 +277,7 @@ func (u *User) AddError(msg string) {
 `
 
 	fileInfos := parseTestFiles(t, []string{sourceCode})
-	fm := entsquash.NewFileMerger(false, false, 1000000)
+	fm := entsquish.NewFileMerger(false, false, 1000000)
 	identifiers := fm.CollectAllIdentifiers(fileInfos)
 
 	expectedIdentifiers := []string{
@@ -372,7 +372,7 @@ func TestGenerateUniqueAlias(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			fm := entsquash.NewFileMerger(false, false, 1000000)
+			fm := entsquish.NewFileMerger(false, false, 1000000)
 			result := fm.GenerateUniqueAlias(tt.baseName, tt.usedIdentifiers, tt.aliasToPath)
 
 			if result != tt.expectedPattern {
@@ -409,7 +409,7 @@ func TestSanitizeIdentifier(t *testing.T) {
 		{"unicode∆", "pkg"},
 	}
 
-	fm := entsquash.NewFileMerger(false, false, 1000000)
+	fm := entsquish.NewFileMerger(false, false, 1000000)
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
 			result := fm.SanitizeIdentifier(tt.input)
@@ -441,7 +441,7 @@ func bar() {
 	}
 
 	fileInfos := parseTestFiles(t, sourceFiles)
-	fm := entsquash.NewFileMerger(false, false, 1000000)
+	fm := entsquish.NewFileMerger(false, false, 1000000)
 
 	merged, err := fm.MergeASTs(fileInfos)
 	if err != nil {
@@ -488,8 +488,8 @@ func bar() {
 }
 
 // Helper function to parse test source code into FileInfo structs
-func parseTestFiles(t *testing.T, sources []string) []entsquash.FileInfo {
-	var fileInfos []entsquash.FileInfo
+func parseTestFiles(t *testing.T, sources []string) []entsquish.FileInfo {
+	var fileInfos []entsquish.FileInfo
 	fileSet := token.NewFileSet()
 
 	for i, source := range sources {
@@ -498,7 +498,7 @@ func parseTestFiles(t *testing.T, sources []string) []entsquash.FileInfo {
 			t.Fatalf("Failed to parse source file %d: %v", i, err)
 		}
 
-		fileInfo := entsquash.FileInfo{
+		fileInfo := entsquish.FileInfo{
 			Path:        "",
 			PackageName: astFile.Name.Name,
 			AST:         astFile,
@@ -547,7 +547,7 @@ func bar() {
 	}
 
 	fileInfos := parseTestFiles(t, sourceFiles)
-	fm := entsquash.NewFileMerger(false, false, 1000000)
+	fm := entsquish.NewFileMerger(false, false, 1000000)
 
 	merged, err := fm.MergeASTs(fileInfos)
 	if err != nil {
@@ -603,7 +603,7 @@ func test() {
 }`
 
 		fileInfos := parseTestFiles(t, []string{sourceCode})
-		fm := entsquash.NewFileMerger(false, false, 1000000)
+		fm := entsquish.NewFileMerger(false, false, 1000000)
 		mapping := fm.ResolveImportConflicts(fileInfos)
 
 		// Dot imports should be handled gracefully
@@ -622,7 +622,7 @@ func test() {
 }`
 
 		fileInfos := parseTestFiles(t, []string{sourceCode})
-		fm := entsquash.NewFileMerger(false, false, 1000000)
+		fm := entsquish.NewFileMerger(false, false, 1000000)
 		mapping := fm.ResolveImportConflicts(fileInfos)
 
 		// Underscore imports should be handled gracefully
@@ -634,7 +634,7 @@ func test() {
 	t.Run("very long package names", func(t *testing.T) {
 		longPackageName := strings.Repeat("verylongpackagename", 10)
 
-		fm := entsquash.NewFileMerger(false, false, 1000000)
+		fm := entsquish.NewFileMerger(false, false, 1000000)
 		result := fm.GenerateUniqueAlias(longPackageName, map[string]bool{}, map[string]string{})
 
 		if !strings.HasSuffix(result, "pkg") {

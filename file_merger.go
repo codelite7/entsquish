@@ -1,4 +1,4 @@
-package entsquash
+package entsquish
 
 import (
 	"fmt"
@@ -17,12 +17,12 @@ import (
 type FileMerger struct {
 	verboseLogging bool
 	dryRun         bool
-	config         SquashingConfig
+	config         SquishingConfig
 }
 
 // NewFileMerger creates a new file merger.
 func NewFileMerger(verboseLogging, dryRun bool, maxFileSize int64) *FileMerger {
-	config := DefaultSquashingConfig()
+	config := DefaultSquishingConfig()
 	config.MaxFileSize = maxFileSize
 	return &FileMerger{
 		verboseLogging: verboseLogging,
@@ -32,9 +32,9 @@ func NewFileMerger(verboseLogging, dryRun bool, maxFileSize int64) *FileMerger {
 }
 
 // MergePackage merges all files in the given package.
-func (fm *FileMerger) MergePackage(pkg SquashablePackage) error {
+func (fm *FileMerger) MergePackage(pkg SquishablePackage) error {
 	if fm.verboseLogging {
-		log.Printf("entsquash: merging package %s with %d files", pkg.Path, len(pkg.Files))
+		log.Printf("entsquish: merging package %s with %d files", pkg.Path, len(pkg.Files))
 	}
 
 	// Create a shared FileSet for all files in this package
@@ -74,7 +74,7 @@ func (fm *FileMerger) MergePackage(pkg SquashablePackage) error {
 
 	if fm.dryRun {
 		if fm.verboseLogging {
-			log.Printf("entsquash: DRY RUN would merge %s -> %s",
+			log.Printf("entsquish: DRY RUN would merge %s -> %s",
 				strings.Join(pkg.Files, ", "), outputPath)
 		}
 		return nil
@@ -89,19 +89,19 @@ func (fm *FileMerger) MergePackage(pkg SquashablePackage) error {
 	// Remove original files (except if they're the same as output)
 	err = fm.removeOriginalFiles(pkg, outputPath)
 	if err != nil {
-		log.Printf("entsquash: warning: failed to remove original files for package %s: %v", pkg.Path, err)
+		log.Printf("entsquish: warning: failed to remove original files for package %s: %v", pkg.Path, err)
 		// Don't fail the operation for this
 	}
 
 	if fm.verboseLogging {
-		log.Printf("entsquash: successfully merged package %s", pkg.Path)
+		log.Printf("entsquish: successfully merged package %s", pkg.Path)
 	}
 
 	return nil
 }
 
 // parseFiles parses all Go files in the package.
-func (fm *FileMerger) parseFiles(pkg SquashablePackage, sharedFileSet *token.FileSet) ([]FileInfo, error) {
+func (fm *FileMerger) parseFiles(pkg SquishablePackage, sharedFileSet *token.FileSet) ([]FileInfo, error) {
 	var fileInfos []FileInfo
 
 	for _, fileName := range pkg.Files {
@@ -115,7 +115,7 @@ func (fm *FileMerger) parseFiles(pkg SquashablePackage, sharedFileSet *token.Fil
 
 		// Safety check for file size
 		if stat.Size() > fm.config.MaxFileSize {
-			return nil, fmt.Errorf("file %s exceeds size limit (%d bytes > %d bytes). To increase the limit, add entsquash.WithMaxFileSize(%d) when configuring the extension",
+			return nil, fmt.Errorf("file %s exceeds size limit (%d bytes > %d bytes). To increase the limit, add entsquish.WithMaxFileSize(%d) when configuring the extension",
 				filePath, stat.Size(), fm.config.MaxFileSize, stat.Size()+10*1024*1024)
 		}
 
@@ -703,7 +703,7 @@ func (fm *FileMerger) getTypeName(expr ast.Expr) string {
 }
 
 // removeOriginalFiles removes the original files after successful merge.
-func (fm *FileMerger) removeOriginalFiles(pkg SquashablePackage, outputPath string) error {
+func (fm *FileMerger) removeOriginalFiles(pkg SquishablePackage, outputPath string) error {
 	for _, fileName := range pkg.Files {
 		filePath := filepath.Join(pkg.Path, fileName)
 

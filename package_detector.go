@@ -1,4 +1,4 @@
-package entsquash
+package entsquish
 
 import (
 	"fmt"
@@ -8,15 +8,15 @@ import (
 	"strings"
 )
 
-// PackageDetector identifies packages that can be safely squashed.
+// PackageDetector identifies packages that can be safely squished.
 type PackageDetector struct {
 	verboseLogging bool
-	config         SquashingConfig
+	config         SquishingConfig
 }
 
 // NewPackageDetector creates a new package detector.
 func NewPackageDetector(verboseLogging bool, maxFileSize int64) *PackageDetector {
-	config := DefaultSquashingConfig()
+	config := DefaultSquishingConfig()
 	config.MaxFileSize = maxFileSize
 	return &PackageDetector{
 		verboseLogging: verboseLogging,
@@ -24,24 +24,24 @@ func NewPackageDetector(verboseLogging bool, maxFileSize int64) *PackageDetector
 	}
 }
 
-// FindSquashablePackages finds all packages that can be safely squashed.
-func (pd *PackageDetector) FindSquashablePackages() ([]SquashablePackage, error) {
-	var squashablePackages []SquashablePackage
+// FindSquishablePackages finds all packages that can be safely squished.
+func (pd *PackageDetector) FindSquishablePackages() ([]SquishablePackage, error) {
+	var squishablePackages []SquishablePackage
 
-	// First, analyze the root gen directory itself for files that can be squashed
+	// First, analyze the root gen directory itself for files that can be squished
 	if pd.verboseLogging {
-		log.Printf("entsquash: analyzing root directory: %s", pd.config.BaseDir)
+		log.Printf("entsquish: analyzing root directory: %s", pd.config.BaseDir)
 	}
 
-	rootPkg, shouldSquash, err := pd.analyzeDirectory(pd.config.BaseDir)
+	rootPkg, shouldSquish, err := pd.analyzeDirectory(pd.config.BaseDir)
 	if err != nil {
 		if pd.verboseLogging {
-			log.Printf("entsquash: warning: failed to analyze root directory %s: %v", pd.config.BaseDir, err)
+			log.Printf("entsquish: warning: failed to analyze root directory %s: %v", pd.config.BaseDir, err)
 		}
-	} else if shouldSquash {
-		squashablePackages = append(squashablePackages, rootPkg)
+	} else if shouldSquish {
+		squishablePackages = append(squishablePackages, rootPkg)
 		if pd.verboseLogging {
-			log.Printf("entsquash: found squashable root package: %s (%d files)", rootPkg.Path, len(rootPkg.Files))
+			log.Printf("entsquish: found squishable root package: %s (%d files)", rootPkg.Path, len(rootPkg.Files))
 		}
 	}
 
@@ -62,18 +62,18 @@ func (pd *PackageDetector) FindSquashablePackages() ([]SquashablePackage, error)
 		}
 
 		// Analyze this directory
-		pkg, shouldSquash, err := pd.analyzeDirectory(path)
+		pkg, shouldSquish, err := pd.analyzeDirectory(path)
 		if err != nil {
 			if pd.verboseLogging {
-				log.Printf("entsquash: warning: failed to analyze directory %s: %v", path, err)
+				log.Printf("entsquish: warning: failed to analyze directory %s: %v", path, err)
 			}
 			return nil // Continue with other directories
 		}
 
-		if shouldSquash {
-			squashablePackages = append(squashablePackages, pkg)
+		if shouldSquish {
+			squishablePackages = append(squishablePackages, pkg)
 			if pd.verboseLogging {
-				log.Printf("entsquash: found squashable package: %s (%d files)", pkg.Path, len(pkg.Files))
+				log.Printf("entsquish: found squishable package: %s (%d files)", pkg.Path, len(pkg.Files))
 			}
 		}
 
@@ -84,12 +84,12 @@ func (pd *PackageDetector) FindSquashablePackages() ([]SquashablePackage, error)
 		return nil, fmt.Errorf("failed to walk gen directory: %w", err)
 	}
 
-	return squashablePackages, nil
+	return squishablePackages, nil
 }
 
-// analyzeDirectory analyzes a directory to determine if it should be squashed.
-func (pd *PackageDetector) analyzeDirectory(dirPath string) (SquashablePackage, bool, error) {
-	pkg := SquashablePackage{
+// analyzeDirectory analyzes a directory to determine if it should be squished.
+func (pd *PackageDetector) analyzeDirectory(dirPath string) (SquishablePackage, bool, error) {
+	pkg := SquishablePackage{
 		Path: dirPath,
 	}
 
@@ -98,7 +98,7 @@ func (pd *PackageDetector) analyzeDirectory(dirPath string) (SquashablePackage, 
 
 	if pkgType != PackageTypeEntity && pkgType != PackageTypeRoot {
 		if pd.verboseLogging {
-			log.Printf("entsquash: skipping %s package: %s", pkgType.String(), dirPath)
+			log.Printf("entsquish: skipping %s package: %s", pkgType.String(), dirPath)
 		}
 		return pkg, false, nil
 	}
@@ -125,10 +125,10 @@ func (pd *PackageDetector) analyzeDirectory(dirPath string) (SquashablePackage, 
 		pkg.HasEntityFile, pkg.HasWhereFile = pd.checkExpectedFiles(files, pkg.EntityName)
 	}
 
-	// Decide if this package should be squashed
-	shouldSquash := pd.shouldSquashPackage(pkg)
+	// Decide if this package should be squished
+	shouldSquish := pd.shouldSquishPackage(pkg)
 
-	return pkg, shouldSquash, nil
+	return pkg, shouldSquish, nil
 }
 
 // classifyPackage determines the type of package.
@@ -143,7 +143,7 @@ func (pd *PackageDetector) classifyPackage(dirPath string) PackageType {
 		return PackageTypeUnknown
 	}
 
-	// Special packages that should not be squashed
+	// Special packages that should not be squished
 	specialPackages := []string{
 		"entsf", "entsearch", "enttest", "hook", "intercept",
 		"internal", "migrate", "predicate", "privacy", "runtime",
@@ -211,18 +211,18 @@ func (pd *PackageDetector) checkExpectedFiles(files []string, entityName string)
 	return hasEntityFile, hasWhereFile
 }
 
-// shouldSquashPackage determines if a package should be squashed.
-func (pd *PackageDetector) shouldSquashPackage(pkg SquashablePackage) bool {
+// shouldSquishPackage determines if a package should be squished.
+func (pd *PackageDetector) shouldSquishPackage(pkg SquishablePackage) bool {
 	// Handle root package differently
 	if pd.classifyPackage(pkg.Path) == PackageTypeRoot {
-		// For root package, we want to squash if there are multiple Go files
+		// For root package, we want to squish if there are multiple Go files
 		if len(pkg.Files) < 2 {
 			if pd.verboseLogging {
-				log.Printf("entsquash: skipping root package %s: has %d files (need at least 2)", pkg.Path, len(pkg.Files))
+				log.Printf("entsquish: skipping root package %s: has %d files (need at least 2)", pkg.Path, len(pkg.Files))
 			}
 			return false
 		}
-		// Root package should be squashed if it has multiple Go files
+		// Root package should be squished if it has multiple Go files
 		return true
 	}
 
@@ -230,7 +230,7 @@ func (pd *PackageDetector) shouldSquashPackage(pkg SquashablePackage) bool {
 	// Must have exactly 2 files
 	if len(pkg.Files) != 2 {
 		if pd.verboseLogging {
-			log.Printf("entsquash: skipping %s: has %d files (expected 2)", pkg.Path, len(pkg.Files))
+			log.Printf("entsquish: skipping %s: has %d files (expected 2)", pkg.Path, len(pkg.Files))
 		}
 		return false
 	}
@@ -238,7 +238,7 @@ func (pd *PackageDetector) shouldSquashPackage(pkg SquashablePackage) bool {
 	// Must have both entity and where files
 	if !pkg.HasEntityFile || !pkg.HasWhereFile {
 		if pd.verboseLogging {
-			log.Printf("entsquash: skipping %s: missing expected files (entity=%v, where=%v)",
+			log.Printf("entsquish: skipping %s: missing expected files (entity=%v, where=%v)",
 				pkg.Path, pkg.HasEntityFile, pkg.HasWhereFile)
 		}
 		return false
