@@ -57,11 +57,6 @@ func NewExtension(opts ...ExtensionOption) (*Extension, error) {
 // Hooks returns the list of hooks for file squishing.
 // This hook runs AFTER normal generation to merge files.
 func (e *Extension) Hooks() []gen.Hook {
-	// If extension is disabled, return no hooks
-	if e == nil || (e.verboseLogging == false && e.dryRun == false) {
-		return []gen.Hook{}
-	}
-
 	return []gen.Hook{
 		func(next gen.Generator) gen.Generator {
 			return gen.GenerateFunc(func(g *gen.Graph) error {
